@@ -1,4 +1,4 @@
-export default function(x, y, color) {
+export default function block(x, y, color) {
   let domElement = document.createElement('div');
   domElement.style.position = 'absolute';
   domElement.style.backgroundColor = color || 'blue';

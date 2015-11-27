@@ -1,6 +1,6 @@
 import block from '../block.js';
 
-export default function(state, opts) {
+export default function shape(state, opts) {
   state.listening = true;
   state.blocks = [];
   state.blocks.push(block(opts.center.x, opts.center.y, opts.color));

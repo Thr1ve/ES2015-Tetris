@@ -1,6 +1,6 @@
 import SETTINGS from '../settings.js';
 
-export default function(block) {
+export default function render(block) {
   let { cellSize } = SETTINGS;
   let domElement = block.domElement;
   domElement.style.backgroundColor = block.backgroundColor;

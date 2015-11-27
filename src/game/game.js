@@ -1,24 +1,12 @@
-import SETTINGS from '../settings.js';
+import background from './background.js';
 import randomShape from '../library/randomShape.js';
 import timer from './timer.js';
 
-function background() {
-  let { height, width, cellSize } = SETTINGS;
-  let level = document.createElement('div');
-  level.id = 'level';
-  level.style.position = 'relative';
-  level.style.backgroundColor = 'black';
-  level.style.height = height * cellSize + 'px';
-  level.style.width = width * cellSize + 'px';
-  document.body.appendChild(level);
-  return level;
-}
-
 export default function(setActiveShapeCallback) {
   let activeShape = randomShape(5, 2);
-  let state = { activeShape: activeShape };
   let currentLevel = background();
   let frozenBlocks = [];
+  let state = { activeShape: activeShape };
   activeShape.attach(currentLevel);
   setActiveShapeCallback(activeShape);
   return Object.assign({

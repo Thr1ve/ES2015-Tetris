@@ -1,6 +1,6 @@
 import shape from './shape.js';
 
-export default function(x, y, color) {
+export default function line(x, y, color) {
   let state = {};
   let mold = [
     {x: x - 1, y: y},

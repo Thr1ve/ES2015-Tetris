@@ -1,4 +1,4 @@
-export default function(state) {
+export default function timer(state) {
   state.lastGameTick = Date.now();
   state.tickTime = 1500;
 

@@ -1,4 +1,4 @@
-export default function() {
+export default function handleKeys() {
   var activeShape;
   return {
     listener(event) {

@@ -1,7 +1,7 @@
 import handleKeys from './library/handleKeys.js';
 import game from './game/game.js';
 
-export default function(gameLoop) {
+export default function setup(gameLoop) {
   let handler = handleKeys();
   let newGame = game(handler.setNewActiveShape);
 
