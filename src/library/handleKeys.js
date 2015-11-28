@@ -3,22 +3,32 @@ export default function handleKeys() {
   return {
     listener(event) {
       let { keyCode } = event;
-
+      console.log(keyCode);
       const keyMap = {
         a: () => {
           console.log('a');
           console.log('active shape: ', activeShape);
-          activeShape.moveLeft()
+          activeShape.moveLeft();
         },
         d: () => {
           console.log('d');
           console.log('active shape: ', activeShape);
-          activeShape.moveRight()
+          activeShape.moveRight();
         },
         s: () => {
           console.log('s');
           console.log('active shape: ', activeShape);
-          activeShape.moveDown()
+          activeShape.moveDown();
+        },
+        e: () => {
+          console.log('e');
+          console.log('active shape: ', activeShape);
+          console.log(activeShape.rotateRight());
+        },
+        q: () => {
+          console.log('e');
+          console.log('active shape: ', activeShape);
+          activeShape.rotateLeft();
         },
       };
 
@@ -30,6 +40,14 @@ export default function handleKeys() {
       case 68:
         event.preventDefault();
         keyMap.d();
+        break;
+      case 69:
+        event.preventDefault();
+        keyMap.e();
+        break;
+      case 81:
+        event.preventDefault();
+        keyMap.q();
         break;
       case 83:
         event.preventDefault();
