@@ -15,9 +15,7 @@ export default function handleKeys() {
           activeShape.moveDown();
         },
         e: () => {
-          console.log('e');
-          console.log('active shape: ', activeShape);
-          console.log(activeShape.rotateRight());
+          activeShape.rotateRight();
         },
         q: () => {
           activeShape.rotateLeft();
