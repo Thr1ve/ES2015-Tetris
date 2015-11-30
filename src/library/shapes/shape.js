@@ -1,6 +1,8 @@
 import block from '../block.js';
+import SETTINGS from '../../settings.js';
 
 export default function shape(state, opts) {
+  let callbacks = {};
   state.listening = true;
   state.blocks = [];
   state.blocks.push(block(opts.center.x, opts.center.y, opts.color));
@@ -8,9 +10,9 @@ export default function shape(state, opts) {
     state.blocks.push(block(piece.x, piece.y, opts.color));
   });
 
-  function move(transObj) {
-    state.blocks.forEach((piece) => {
-      piece.shift(transObj);
+  function setRenderables(newStateArray) {
+    state.blocks.forEach(function(piece, ind) {
+      piece.setRenderables(newStateArray[ind]);
     });
   }
 
@@ -21,50 +23,75 @@ export default function shape(state, opts) {
       });
     },
 
+    addCallback(func) {
+      callbacks[func.name] = func;
+    },
+
     moveRight() {
-      move({x: 1});
+      let newLoc = state.blocks.map(function(piece) {
+        let coords = piece.getRenderables();
+        coords.x += 1;
+        return coords;
+      });
+      if (callbacks.moveRequest(newLoc).isLegal) {
+        setRenderables(newLoc);
+      }
     },
 
     moveLeft() {
-      move({x: -1});
+      let newLoc = state.blocks.map(function(piece) {
+        let coords = piece.getRenderables();
+        coords.x -= 1;
+        return coords;
+      });
+      if (callbacks.moveRequest(newLoc).isLegal) {
+        setRenderables(newLoc);
+      }
     },
 
     moveDown() {
-      move({y: 1});
+      let newLoc = state.blocks.map(function(piece) {
+        let coords = piece.getRenderables();
+        coords.y += 1;
+        return coords;
+      });
+      if (callbacks.moveRequest(newLoc).isLegal) {
+        setRenderables(newLoc);
+      } else {
+        callbacks.freeze();
+      }
     },
 
     rotateRight() {
       let {x: centerX, y: centerY} = state.blocks[0].getRenderables();
-      return state.blocks.map((piece) => {
+      let newLoc = state.blocks.map((piece) => {
         let { x, y } = piece.getRenderables();
         let xOffset = centerX - x;
         let yOffset = centerY - y;
         return {x: centerX + yOffset, y: centerY - xOffset};
       });
+      if (callbacks.moveRequest(newLoc).isLegal) {
+        setRenderables(newLoc);
+      }
     },
 
     rotateLeft() {
       let {x: centerX, y: centerY} = state.blocks[0].getRenderables();
-      return state.blocks.map((piece) => {
+      let newLoc = state.blocks.map((piece) => {
         let { x, y } = piece.getRenderables();
         let xOffset = centerX - x;
         let yOffset = centerY - y;
         return {x: centerX - yOffset, y: centerY + xOffset};
       });
+      if (callbacks.moveRequest(newLoc).isLegal) {
+        setRenderables(newLoc);
+      }
     },
 
     attach(dom) {
       state.blocks.forEach((piece) => {
         dom.appendChild(piece.domElement);
       });
-    },
-
-    freeze() {
-      state.listening = false;
-      state.blocks.forEach((piece) => {
-        piece.freeze();
-      });
-      return state.blocks;
     },
   };
 }

@@ -1,13 +1,13 @@
 export default function block(x, y, color) {
-  let domElement = document.createElement('div');
-  domElement.style.position = 'absolute';
-  domElement.style.backgroundColor = color || 'blue';
   let state = {
-    frozen: false,
     backgroundColor: color || 'blue',
     x: x,
     y: y,
   };
+  let domElement = document.createElement('div');
+  domElement.style.position = 'absolute';
+  domElement.style.backgroundColor = color || 'blue';
+
   return {
     domElement: domElement,
     getRenderables() {
@@ -17,19 +17,10 @@ export default function block(x, y, color) {
         backgroundColor: state.backgroundColor,
       };
     },
-    freeze() {
-      state.frozen = true;
-    },
-    isFrozen() {
-      return state.frozen;
-    },
-    set(coords) {
-      state.x = coords.x || state.x;
-      state.y = coords.y || state.y;
-    },
-    shift(transObj) {
-      state.x = state.x + (transObj.x || 0);
-      state.y = state.y + (transObj.y || 0);
+    setRenderables(coords) {
+      state.x = coords.x;
+      state.y = coords.y;
+      state.backgroundColor = coords.backgroundColor || state.backgroundColor;
     },
   };
 }
