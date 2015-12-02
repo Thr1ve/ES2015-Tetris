@@ -1,6 +1,6 @@
 const SETTINGS = {
-  height: 12,
-  width: 25,
+  height: 20,
+  width: 14,
   cellSize: 25,
   colors: ['blue', 'green', 'orange', 'purple'],
 };
