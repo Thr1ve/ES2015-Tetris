@@ -5,7 +5,7 @@ export default function background() {
   let levelBackground = document.createElement('div');
   levelBackground.id = 'levelBackground';
   levelBackground.style.position = 'relative';
-  levelBackground.style.backgroundColor = 'black';
+  levelBackground.style.backgroundColor = '#002b36';
   levelBackground.style.height = height * cellSize + 'px';
   levelBackground.style.width = width * cellSize + 'px';
   document.body.appendChild(levelBackground);
