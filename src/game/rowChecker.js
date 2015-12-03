@@ -1,19 +1,6 @@
 import { width as boardWidth, height as boardHeight } from '../settings.js';
 
 export default function(state, callbacks) {
-  function removeRow(n) {
-    state.frozenBlocks = state.frozenBlocks.filter(function(block) {
-      return block.y !== n;
-    });
-  }
-
-  function pullDown(fullRows) {
-    state.frozenBlocks = fullRows.reduce(function(prev, cur) {
-      block.y += 1;
-      return block;
-    });
-  }
-
   function organizeByRow(frozenBlocks) {
     return frozenBlocks.reduce(function(result, current) {
       let row = current.y;
@@ -27,23 +14,26 @@ export default function(state, callbacks) {
 
   return {
     checkRows() {
-      let fullRows = organizeByRow(state.frozenBlocks).reduce(function(result, row, ind) {
-        if (row.length >= boardWidth) {
-          result.push({rowNumber: ind, blocks: row});
-        }
-        return result;
-      }, []);
-      let completedRows = fullRows.length;
-      if (completedRows > 0) {
-        fullRows.forEach(function(row) {
-          row.blocks.forEach(function(block) {
+      let byRow = organizeByRow(state.frozenBlocks)
+      let { blocks, currentShift } = byRow.reduceRight(function(result, current) {
+        if (!current) {
+          return result;
+        } if (current.length >= boardWidth) {
+          result.currentShift += 1;
+          current.forEach(function(block) {
             state.background.removeChild(block.domElement);
           });
-          removeRow(row.rowNumber);
-        });
-        pullDown(fullRows);
-        callbacks.updateScore(completedRows);
-      }
+          return result;
+        } else {
+          result.blocks = result.blocks.concat(current.map(function(block) {
+            block.y += result.currentShift;
+            return block;
+          }));
+          return result;
+        }
+      }, {currentShift: 0, blocks: []});
+      state.frozenBlocks = blocks;
+      callbacks.updateScore(currentShift);
     },
   };
 }

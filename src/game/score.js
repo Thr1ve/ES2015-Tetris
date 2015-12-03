@@ -1,9 +1,12 @@
 export default function score(state, callbacks) {
 
+  let scoreBoard = document.createElement('div')
+  document.body.appendChild(scoreBoard);
+
   function updateScore(completedRows) {
     let points = getPoints(completedRows);
     state.score += points;
-    console.log(state.score);
+    scoreBoard.innerText = 'Score: ' + state.score;
   }
 
   function getPoints(n) {

@@ -48,8 +48,7 @@ export default function handleKeys() {
       }
     },
     setNewActiveShape(newActiveShape) {
-      console.log('new active shape: ', newActiveShape);
       activeShape = newActiveShape;
-    }
+    },
   };
 }
