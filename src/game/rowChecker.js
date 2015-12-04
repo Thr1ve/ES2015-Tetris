@@ -1,4 +1,6 @@
-import { width as boardWidth, height as boardHeight } from '../settings.js';
+import SETTINGS from '../settings.js';
+let boardWidth = SETTINGS.width;
+let boardHeight = SETTINGS.height;
 
 export default function(state, callbacks) {
   function organizeByRow(frozenBlocks) {

@@ -2,7 +2,6 @@ const SETTINGS = {
   height: 20,
   width: 14,
   cellSize: 25,
-  // solarized dark colors: https://github.com/altercation/solarized
   colors: [
     '#b58900',
     '#cb4b16',

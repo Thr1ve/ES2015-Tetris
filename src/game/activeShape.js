@@ -2,12 +2,8 @@ import randomShape from '../library/randomShape.js';
 import SETTINGS from '../settings.js';
 
 export default function activeShape(state, callbacks) {
-  function makeShape(gameState) {
-    gameState.activeShape = randomShape(1, 2);
-    gameState.activeShape.attach(gameState.background);
-    gameState.activeShape.addCallback(moveRequest);
-    gameState.activeShape.addCallback(freeze);
-    callbacks.setActiveShapeCallback(gameState.activeShape);
+  function freeze() {
+    newActiveShape();
   }
 
   function moveRequest(newState) {
@@ -53,8 +49,12 @@ export default function activeShape(state, callbacks) {
     });
   }
 
-  function freeze() {
-    newActiveShape();
+  function makeShape(gameState) {
+    gameState.activeShape = randomShape(1, 2);
+    gameState.activeShape.attach(gameState.background);
+    gameState.activeShape.addCallback(moveRequest);
+    gameState.activeShape.addCallback(freeze);
+    callbacks.setActiveShapeCallback(gameState.activeShape);
   }
 
   function newActiveShape() {
@@ -65,11 +65,11 @@ export default function activeShape(state, callbacks) {
     makeShape(state);
   }
 
-
   callbacks.getActiveShape = function() {
     return state.activeShape.giveRenderables();
   };
 
   makeShape(state);
+
   return {};
 }
