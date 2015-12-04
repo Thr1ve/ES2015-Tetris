@@ -5,7 +5,8 @@
   "main": "src/app.js",
   "scripts": {
     "start": "webpack-dev-server",
-    "build": "browserify src/app.js -o tetris.1.0.0.js -t [ babelify --presets [ es2015 ] ]"
+    "build": "browserify src/app.js -o tetris.1.0.0.js -t [ babelify --presets [ es2015 ] ]",
+    "deploy": "git checkout gh-pages && git merge master && npm run build"
   },
   "keywords": [],
   "author": "thr1ve",
