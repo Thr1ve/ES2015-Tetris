@@ -772,7 +772,6 @@ var _game2 = _interopRequireDefault(_game);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function setup(gameLoop) {
-  console.log('deploy test 4');
   var handler = (0, _handleKeys2.default)();
   var newGame = (0, _game2.default)(handler.setNewActiveShape);
 
