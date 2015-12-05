@@ -42,11 +42,13 @@ var _settings2 = _interopRequireDefault(_settings);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+// TODO: Rename this "Shape controller" ?
 function activeShape(state, callbacks) {
   function freeze() {
     newActiveShape();
   }
 
+  // TODO: Cyclomatic complexity of 5...
   function moveRequest(newState) {
     var edges = getEdgeBlocks(newState);
     var result = {
@@ -67,6 +69,7 @@ function activeShape(state, callbacks) {
     return result;
   }
 
+  // TODO: Cyclomatic complexity of 4...
   function getEdgeBlocks(blocks) {
     return blocks.reduce(function (result, piece) {
       if (piece.x < result.leftMost.x) {
@@ -209,6 +212,8 @@ exports.default = function (state, callbacks) {
   }
 
   return {
+    // TODO: Too dense? Should this be split into smaller functions?
+
     checkRows: function checkRows() {
       var byRow = organizeByRow(state.frozenBlocks);
 
@@ -246,7 +251,6 @@ var _settings2 = _interopRequireDefault(_settings);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var boardWidth = _settings2.default.width;
-var boardHeight = _settings2.default.height;
 
 },{"../settings.js":19}],6:[function(require,module,exports){
 'use strict';
@@ -266,6 +270,7 @@ function score(state, callbacks) {
     scoreBoard.innerText = 'Score: ' + state.score;
   }
 
+  // TODO: This should be an algorithm
   function getPoints(n) {
     if (n === 1) {
       return 100;
@@ -610,6 +615,8 @@ function shape(state, opts) {
     addCallback: function addCallback(func) {
       callbacks[func.name] = func;
     },
+
+    // TODO: instead of having all of this logic here and accepting a call-back, should we just move it to activeShape.js
     moveRight: function moveRight() {
       var newLoc = state.blocks.map(function (piece) {
         var coords = piece.getRenderables();
