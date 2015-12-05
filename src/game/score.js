@@ -9,6 +9,7 @@ export default function score(state, callbacks) {
     scoreBoard.innerText = 'Score: ' + state.score;
   }
 
+  // TODO: This should be an algorithm
   function getPoints(n) {
     if (n === 1) {
       return 100;
