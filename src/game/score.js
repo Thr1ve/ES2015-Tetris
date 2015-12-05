@@ -7,6 +7,7 @@ export default function score(state, callbacks) {
     let points = getPoints(completedRows);
     state.score += points;
     scoreBoard.innerText = 'Score: ' + state.score;
+    callbacks.setDifficulty();
   }
 
   // TODO: This should be an algorithm

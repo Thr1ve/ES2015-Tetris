@@ -24,7 +24,7 @@ function mainLoop(game) {
 
 (0, _setup2.default)(mainLoop);
 
-},{"./library/render.js":11,"./setup.js":20}],2:[function(require,module,exports){
+},{"./library/render.js":12,"./setup.js":21}],2:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -118,7 +118,7 @@ function activeShape(state, callbacks) {
   return {};
 }
 
-},{"../library/randomShape.js":10,"../settings.js":19}],3:[function(require,module,exports){
+},{"../library/randomShape.js":11,"../settings.js":20}],3:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -147,7 +147,26 @@ function background() {
   return levelBackground;
 }
 
-},{"../settings.js":19}],4:[function(require,module,exports){
+},{"../settings.js":20}],4:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = difficulty;
+function difficulty(state, callbacks) {
+  function decideDifficulty(score) {
+    return Math.floor(score / 1000) + 1;
+  }
+
+  callbacks.setDifficulty = function setDifficulty() {
+    state.difficulty = decideDifficulty(state.score);
+  };
+
+  return {};
+}
+
+},{}],5:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -158,7 +177,8 @@ exports.default = function (setActiveShapeCallback) {
   var state = {
     background: (0, _background2.default)(),
     frozenBlocks: [],
-    score: 0
+    score: 0,
+    difficulty: 1
   };
 
   var callbacks = { setActiveShapeCallback: setActiveShapeCallback };
@@ -167,7 +187,7 @@ exports.default = function (setActiveShapeCallback) {
     getRenderables: function getRenderables() {
       return state.frozenBlocks.concat(callbacks.getActiveShape());
     }
-  }, (0, _timer2.default)(state), (0, _activeShape2.default)(state, callbacks), (0, _rowChecker2.default)(state, callbacks), (0, _score2.default)(state, callbacks));
+  }, (0, _timer2.default)(state, callbacks), (0, _activeShape2.default)(state, callbacks), (0, _rowChecker2.default)(state, callbacks), (0, _score2.default)(state, callbacks), (0, _difficulty2.default)(state, callbacks));
 };
 
 var _background = require('./background.js');
@@ -190,9 +210,13 @@ var _score = require('./score.js');
 
 var _score2 = _interopRequireDefault(_score);
 
+var _difficulty = require('./difficulty.js');
+
+var _difficulty2 = _interopRequireDefault(_difficulty);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-},{"./activeShape.js":2,"./background.js":3,"./rowChecker.js":5,"./score.js":6,"./timer.js":7}],5:[function(require,module,exports){
+},{"./activeShape.js":2,"./background.js":3,"./difficulty.js":4,"./rowChecker.js":6,"./score.js":7,"./timer.js":8}],6:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -252,7 +276,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 var boardWidth = _settings2.default.width;
 
-},{"../settings.js":19}],6:[function(require,module,exports){
+},{"../settings.js":20}],7:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -268,6 +292,7 @@ function score(state, callbacks) {
     var points = getPoints(completedRows);
     state.score += points;
     scoreBoard.innerText = 'Score: ' + state.score;
+    callbacks.setDifficulty();
   }
 
   // TODO: This should be an algorithm
@@ -289,16 +314,45 @@ function score(state, callbacks) {
   return {};
 }
 
-},{}],7:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.default = timer;
-function timer(state) {
+function timer(state, callbacks) {
   state.lastGameTick = Date.now();
-  state.tickTime = 1500;
+
+  // TODO: I hate this. should be algorithm...
+  function getTickTime() {
+    var difficulty = state.difficulty;
+
+    switch (difficulty) {
+      case 1:
+        return 1500;
+      case 2:
+        return 1200;
+      case 3:
+        return 1000;
+      case 4:
+        return 800;
+      case 5:
+        return 600;
+      case 6:
+        return 500;
+      case 7:
+        return 400;
+      case 8:
+        return 300;
+      case 9:
+        return 200;
+      case 10:
+        return 100;
+      default:
+        return 100;
+    }
+  }
 
   function tick() {
     state.activeShape.moveDown();
@@ -307,14 +361,14 @@ function timer(state) {
 
   return {
     checkTime: function checkTime() {
-      if (Date.now() - state.lastGameTick >= state.tickTime) {
+      if (Date.now() - state.lastGameTick >= getTickTime()) {
         tick();
       }
     }
   };
 }
 
-},{}],8:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -348,7 +402,7 @@ function block(x, y, color) {
   };
 }
 
-},{}],9:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -411,7 +465,7 @@ function handleKeys() {
   };
 }
 
-},{}],10:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -439,7 +493,7 @@ function randomShape(x, y) {
   return shape(x, y, color);
 }
 
-},{"../settings.js":19,"../utils/random.js":21,"./shapes.js":12}],11:[function(require,module,exports){
+},{"../settings.js":20,"../utils/random.js":22,"./shapes.js":13}],12:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -464,7 +518,7 @@ function render(block) {
   domElement.style.width = cellSize + 'px';
 }
 
-},{"../settings.js":19}],12:[function(require,module,exports){
+},{"../settings.js":20}],13:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -501,7 +555,7 @@ exports.default = {
   z: _z2.default
 };
 
-},{"./shapes/corner.js":13,"./shapes/l.js":14,"./shapes/line.js":15,"./shapes/square.js":17,"./shapes/z.js":18}],13:[function(require,module,exports){
+},{"./shapes/corner.js":14,"./shapes/l.js":15,"./shapes/line.js":16,"./shapes/square.js":18,"./shapes/z.js":19}],14:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -525,7 +579,7 @@ function corner(x, y, color) {
   }));
 }
 
-},{"./shape.js":16}],14:[function(require,module,exports){
+},{"./shape.js":17}],15:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -549,7 +603,7 @@ function l(x, y, color) {
   }));
 }
 
-},{"./shape.js":16}],15:[function(require,module,exports){
+},{"./shape.js":17}],16:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -573,7 +627,7 @@ function line(x, y, color) {
   }));
 }
 
-},{"./shape.js":16}],16:[function(require,module,exports){
+},{"./shape.js":17}],17:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -697,7 +751,7 @@ function shape(state, opts) {
   };
 }
 
-},{"../../settings.js":19,"../block.js":8}],17:[function(require,module,exports){
+},{"../../settings.js":20,"../block.js":9}],18:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -721,7 +775,7 @@ function square(x, y, color) {
   }));
 }
 
-},{"./shape.js":16}],18:[function(require,module,exports){
+},{"./shape.js":17}],19:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -745,7 +799,7 @@ function z(x, y, color) {
   }));
 }
 
-},{"./shape.js":16}],19:[function(require,module,exports){
+},{"./shape.js":17}],20:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -760,7 +814,7 @@ var SETTINGS = {
 
 exports.default = SETTINGS;
 
-},{}],20:[function(require,module,exports){
+},{}],21:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -786,7 +840,7 @@ function setup(gameLoop) {
   gameLoop(newGame);
 }
 
-},{"./game/game.js":4,"./library/handleKeys.js":9}],21:[function(require,module,exports){
+},{"./game/game.js":5,"./library/handleKeys.js":10}],22:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
