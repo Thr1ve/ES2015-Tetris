@@ -27,6 +27,7 @@ export default function shape(state, opts) {
       callbacks[func.name] = func;
     },
 
+    // TODO: instead of having all of this logic here and accepting a call-back, should we just move it to activeShape.js
     moveRight() {
       let newLoc = state.blocks.map(function(piece) {
         let coords = piece.getRenderables();

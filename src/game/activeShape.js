@@ -1,3 +1,4 @@
+// TODO: Rename this "Shape controller" ?
 import randomShape from '../library/randomShape.js';
 import SETTINGS from '../settings.js';
 
@@ -6,6 +7,7 @@ export default function activeShape(state, callbacks) {
     newActiveShape();
   }
 
+  // TODO: Cyclomatic complexity of 5...
   function moveRequest(newState) {
     let edges = getEdgeBlocks(newState);
     let result = {
@@ -26,6 +28,7 @@ export default function activeShape(state, callbacks) {
     return result;
   }
 
+  // TODO: Cyclomatic complexity of 4...
   function getEdgeBlocks(blocks) {
     return blocks.reduce(function(result, piece) {
       if (piece.x < result.leftMost.x) {

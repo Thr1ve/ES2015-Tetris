@@ -1,6 +1,5 @@
 import SETTINGS from '../settings.js';
-let boardWidth = SETTINGS.width;
-let boardHeight = SETTINGS.height;
+const boardWidth = SETTINGS.width;
 
 export default function(state, callbacks) {
   function organizeByRow(frozenBlocks) {
@@ -15,8 +14,9 @@ export default function(state, callbacks) {
   }
 
   return {
+    // TODO: Too dense? Should this be split into smaller functions?
     checkRows() {
-      let byRow = organizeByRow(state.frozenBlocks)
+      let byRow = organizeByRow(state.frozenBlocks);
       let { blocks, currentShift } = byRow.reduceRight(function(result, current) {
         if (!current) {
           return result;
