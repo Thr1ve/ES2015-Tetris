@@ -9,6 +9,9 @@ function mainLoop(game) {
     render(block);
   });
 
+  if (game.gameOver()) {
+    return game.end();
+  }
   setTimeout(mainLoop, 1000 / 60, game);
 }
 
