@@ -19,18 +19,251 @@ function mainLoop(game) {
     (0, _render2.default)(block);
   });
 
+  if (game.gameOver()) {
+    return game.end();
+  }
   setTimeout(mainLoop, 1000 / 60, game);
 }
 
 (0, _setup2.default)(mainLoop);
 
-},{"./library/render.js":12,"./setup.js":21}],2:[function(require,module,exports){
+},{"./library/render.js":13,"./setup.js":22}],2:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.default = activeShape;
+exports.default = background;
+
+var _settings = require('../settings.js');
+
+var _settings2 = _interopRequireDefault(_settings);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function background() {
+  var height = _settings2.default.height;
+  var width = _settings2.default.width;
+  var cellSize = _settings2.default.cellSize;
+
+  var levelBackground = document.createElement('div');
+  levelBackground.id = 'levelBackground';
+  levelBackground.style.position = 'relative';
+  levelBackground.style.backgroundColor = '#002b36';
+  levelBackground.style.height = height * cellSize + 'px';
+  levelBackground.style.width = width * cellSize + 'px';
+  document.body.appendChild(levelBackground);
+  return levelBackground;
+}
+
+},{"../settings.js":21}],3:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = difficulty;
+function difficulty(state, callbacks) {
+  function decideDifficulty(score) {
+    return Math.floor(score / 1000) + 1;
+  }
+
+  callbacks.setDifficulty = function setDifficulty() {
+    state.difficulty = decideDifficulty(state.score);
+  };
+
+  return {};
+}
+
+},{}],4:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = end;
+function end(state, callbacks) {
+  return {
+    end: function end() {
+      document.body.removeChild(state.background);
+      var gameOver = document.createElement('div');
+      gameOver.style.position = 'relative';
+      gameOver.innerText = 'Game Over. Refresh the Page to play again!';
+      document.body.appendChild(gameOver);
+    },
+    gameOver: function gameOver() {
+      return state.frozenBlocks.some(function (left) {
+        var nBlocks = state.frozenBlocks.filter(function (right) {
+          return left.x === right.x && left.y === right.y;
+        });
+        if (nBlocks.length > 1) {
+          return true;
+        }
+        return false;
+      });
+    }
+  };
+}
+
+},{}],5:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+exports.default = function (setActiveShapeCallback) {
+  var state = {
+    background: (0, _background2.default)(),
+    frozenBlocks: [],
+    score: 0,
+    difficulty: 1
+  };
+
+  var callbacks = { setActiveShapeCallback: setActiveShapeCallback };
+
+  return Object.assign({
+    getRenderables: function getRenderables() {
+      return state.frozenBlocks.concat(callbacks.getActiveShape());
+    }
+  }, (0, _timer2.default)(state, callbacks), (0, _shapeController2.default)(state, callbacks), (0, _rowChecker2.default)(state, callbacks), (0, _score2.default)(state, callbacks), (0, _difficulty2.default)(state, callbacks), (0, _end2.default)(state, callbacks));
+};
+
+var _background = require('./background.js');
+
+var _background2 = _interopRequireDefault(_background);
+
+var _shapeController = require('./shapeController.js');
+
+var _shapeController2 = _interopRequireDefault(_shapeController);
+
+var _timer = require('./timer.js');
+
+var _timer2 = _interopRequireDefault(_timer);
+
+var _rowChecker = require('./rowChecker.js');
+
+var _rowChecker2 = _interopRequireDefault(_rowChecker);
+
+var _score = require('./score.js');
+
+var _score2 = _interopRequireDefault(_score);
+
+var _difficulty = require('./difficulty.js');
+
+var _difficulty2 = _interopRequireDefault(_difficulty);
+
+var _end = require('./end.js');
+
+var _end2 = _interopRequireDefault(_end);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+},{"./background.js":2,"./difficulty.js":3,"./end.js":4,"./rowChecker.js":6,"./score.js":7,"./shapeController.js":8,"./timer.js":9}],6:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+exports.default = function (state, callbacks) {
+  function organizeByRow(frozenBlocks) {
+    return frozenBlocks.reduce(function (result, current) {
+      var row = current.y;
+      if (!result[row]) {
+        result[row] = [];
+      }
+      result[row].push(current);
+      return result;
+    }, []);
+  }
+
+  return {
+    // TODO: Too dense? Should this be split into smaller functions?
+
+    checkRows: function checkRows() {
+      var byRow = organizeByRow(state.frozenBlocks);
+
+      var _byRow$reduceRight = byRow.reduceRight(function (result, current) {
+        if (!current) {
+          return result;
+        }if (current.length >= boardWidth) {
+          result.currentShift += 1;
+          current.forEach(function (block) {
+            state.background.removeChild(block.domElement);
+          });
+          return result;
+        } else {
+          result.blocks = result.blocks.concat(current.map(function (block) {
+            block.y += result.currentShift;
+            return block;
+          }));
+          return result;
+        }
+      }, { currentShift: 0, blocks: [] });
+
+      var blocks = _byRow$reduceRight.blocks;
+      var currentShift = _byRow$reduceRight.currentShift;
+
+      state.frozenBlocks = blocks;
+      callbacks.updateScore(currentShift);
+    }
+  };
+};
+
+var _settings = require('../settings.js');
+
+var _settings2 = _interopRequireDefault(_settings);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var boardWidth = _settings2.default.width;
+
+},{"../settings.js":21}],7:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = score;
+function score(state, callbacks) {
+
+  var scoreBoard = document.createElement('div');
+  document.body.appendChild(scoreBoard);
+
+  function updateScore(completedRows) {
+    var points = getPoints(completedRows);
+    state.score += points;
+    scoreBoard.innerText = 'Score: ' + state.score;
+    callbacks.setDifficulty();
+  }
+
+  // TODO: This should be an algorithm
+  function getPoints(n) {
+    if (n === 1) {
+      return 100;
+    } else if (n === 2) {
+      return 250;
+    } else if (n === 3) {
+      return 300;
+    } else if (n === 4) {
+      return 500;
+    }
+    return 0;
+  }
+
+  callbacks.updateScore = updateScore;
+
+  return {};
+}
+
+},{}],8:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = shapeController;
 
 var _randomShape = require('../library/randomShape.js');
 
@@ -42,8 +275,7 @@ var _settings2 = _interopRequireDefault(_settings);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-// TODO: Rename this "Shape controller" ?
-function activeShape(state, callbacks) {
+function shapeController(state, callbacks) {
   function freeze() {
     newActiveShape();
   }
@@ -118,203 +350,7 @@ function activeShape(state, callbacks) {
   return {};
 }
 
-},{"../library/randomShape.js":11,"../settings.js":20}],3:[function(require,module,exports){
-'use strict';
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = background;
-
-var _settings = require('../settings.js');
-
-var _settings2 = _interopRequireDefault(_settings);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function background() {
-  var height = _settings2.default.height;
-  var width = _settings2.default.width;
-  var cellSize = _settings2.default.cellSize;
-
-  var levelBackground = document.createElement('div');
-  levelBackground.id = 'levelBackground';
-  levelBackground.style.position = 'relative';
-  levelBackground.style.backgroundColor = '#002b36';
-  levelBackground.style.height = height * cellSize + 'px';
-  levelBackground.style.width = width * cellSize + 'px';
-  document.body.appendChild(levelBackground);
-  return levelBackground;
-}
-
-},{"../settings.js":20}],4:[function(require,module,exports){
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = difficulty;
-function difficulty(state, callbacks) {
-  function decideDifficulty(score) {
-    return Math.floor(score / 1000) + 1;
-  }
-
-  callbacks.setDifficulty = function setDifficulty() {
-    state.difficulty = decideDifficulty(state.score);
-  };
-
-  return {};
-}
-
-},{}],5:[function(require,module,exports){
-'use strict';
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-exports.default = function (setActiveShapeCallback) {
-  var state = {
-    background: (0, _background2.default)(),
-    frozenBlocks: [],
-    score: 0,
-    difficulty: 1
-  };
-
-  var callbacks = { setActiveShapeCallback: setActiveShapeCallback };
-
-  return Object.assign({
-    getRenderables: function getRenderables() {
-      return state.frozenBlocks.concat(callbacks.getActiveShape());
-    }
-  }, (0, _timer2.default)(state, callbacks), (0, _activeShape2.default)(state, callbacks), (0, _rowChecker2.default)(state, callbacks), (0, _score2.default)(state, callbacks), (0, _difficulty2.default)(state, callbacks));
-};
-
-var _background = require('./background.js');
-
-var _background2 = _interopRequireDefault(_background);
-
-var _activeShape = require('./activeShape.js');
-
-var _activeShape2 = _interopRequireDefault(_activeShape);
-
-var _timer = require('./timer.js');
-
-var _timer2 = _interopRequireDefault(_timer);
-
-var _rowChecker = require('./rowChecker.js');
-
-var _rowChecker2 = _interopRequireDefault(_rowChecker);
-
-var _score = require('./score.js');
-
-var _score2 = _interopRequireDefault(_score);
-
-var _difficulty = require('./difficulty.js');
-
-var _difficulty2 = _interopRequireDefault(_difficulty);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-},{"./activeShape.js":2,"./background.js":3,"./difficulty.js":4,"./rowChecker.js":6,"./score.js":7,"./timer.js":8}],6:[function(require,module,exports){
-'use strict';
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-exports.default = function (state, callbacks) {
-  function organizeByRow(frozenBlocks) {
-    return frozenBlocks.reduce(function (result, current) {
-      var row = current.y;
-      if (!result[row]) {
-        result[row] = [];
-      }
-      result[row].push(current);
-      return result;
-    }, []);
-  }
-
-  return {
-    // TODO: Too dense? Should this be split into smaller functions?
-
-    checkRows: function checkRows() {
-      var byRow = organizeByRow(state.frozenBlocks);
-
-      var _byRow$reduceRight = byRow.reduceRight(function (result, current) {
-        if (!current) {
-          return result;
-        }if (current.length >= boardWidth) {
-          result.currentShift += 1;
-          current.forEach(function (block) {
-            state.background.removeChild(block.domElement);
-          });
-          return result;
-        } else {
-          result.blocks = result.blocks.concat(current.map(function (block) {
-            block.y += result.currentShift;
-            return block;
-          }));
-          return result;
-        }
-      }, { currentShift: 0, blocks: [] });
-
-      var blocks = _byRow$reduceRight.blocks;
-      var currentShift = _byRow$reduceRight.currentShift;
-
-      state.frozenBlocks = blocks;
-      callbacks.updateScore(currentShift);
-    }
-  };
-};
-
-var _settings = require('../settings.js');
-
-var _settings2 = _interopRequireDefault(_settings);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-var boardWidth = _settings2.default.width;
-
-},{"../settings.js":20}],7:[function(require,module,exports){
-'use strict';
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = score;
-function score(state, callbacks) {
-
-  var scoreBoard = document.createElement('div');
-  document.body.appendChild(scoreBoard);
-
-  function updateScore(completedRows) {
-    var points = getPoints(completedRows);
-    state.score += points;
-    scoreBoard.innerText = 'Score: ' + state.score;
-    callbacks.setDifficulty();
-  }
-
-  // TODO: This should be an algorithm
-  function getPoints(n) {
-    if (n === 1) {
-      return 100;
-    } else if (n === 2) {
-      return 250;
-    } else if (n === 3) {
-      return 300;
-    } else if (n === 4) {
-      return 500;
-    }
-    return 0;
-  }
-
-  callbacks.updateScore = updateScore;
-
-  return {};
-}
-
-},{}],8:[function(require,module,exports){
+},{"../library/randomShape.js":12,"../settings.js":21}],9:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -368,7 +404,7 @@ function timer(state, callbacks) {
   };
 }
 
-},{}],9:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -402,7 +438,7 @@ function block(x, y, color) {
   };
 }
 
-},{}],10:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -465,7 +501,7 @@ function handleKeys() {
   };
 }
 
-},{}],11:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -493,7 +529,7 @@ function randomShape(x, y) {
   return shape(x, y, color);
 }
 
-},{"../settings.js":20,"../utils/random.js":22,"./shapes.js":13}],12:[function(require,module,exports){
+},{"../settings.js":21,"../utils/random.js":23,"./shapes.js":14}],13:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -518,7 +554,7 @@ function render(block) {
   domElement.style.width = cellSize + 'px';
 }
 
-},{"../settings.js":20}],13:[function(require,module,exports){
+},{"../settings.js":21}],14:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -555,7 +591,7 @@ exports.default = {
   z: _z2.default
 };
 
-},{"./shapes/corner.js":14,"./shapes/l.js":15,"./shapes/line.js":16,"./shapes/square.js":18,"./shapes/z.js":19}],14:[function(require,module,exports){
+},{"./shapes/corner.js":15,"./shapes/l.js":16,"./shapes/line.js":17,"./shapes/square.js":19,"./shapes/z.js":20}],15:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -579,7 +615,7 @@ function corner(x, y, color) {
   }));
 }
 
-},{"./shape.js":17}],15:[function(require,module,exports){
+},{"./shape.js":18}],16:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -603,7 +639,7 @@ function l(x, y, color) {
   }));
 }
 
-},{"./shape.js":17}],16:[function(require,module,exports){
+},{"./shape.js":18}],17:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -627,7 +663,7 @@ function line(x, y, color) {
   }));
 }
 
-},{"./shape.js":17}],17:[function(require,module,exports){
+},{"./shape.js":18}],18:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -751,7 +787,7 @@ function shape(state, opts) {
   };
 }
 
-},{"../../settings.js":20,"../block.js":9}],18:[function(require,module,exports){
+},{"../../settings.js":21,"../block.js":10}],19:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -775,7 +811,7 @@ function square(x, y, color) {
   }));
 }
 
-},{"./shape.js":17}],19:[function(require,module,exports){
+},{"./shape.js":18}],20:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -799,7 +835,7 @@ function z(x, y, color) {
   }));
 }
 
-},{"./shape.js":17}],20:[function(require,module,exports){
+},{"./shape.js":18}],21:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -814,7 +850,7 @@ var SETTINGS = {
 
 exports.default = SETTINGS;
 
-},{}],21:[function(require,module,exports){
+},{}],22:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -840,7 +876,7 @@ function setup(gameLoop) {
   gameLoop(newGame);
 }
 
-},{"./game/game.js":5,"./library/handleKeys.js":10}],22:[function(require,module,exports){
+},{"./game/game.js":5,"./library/handleKeys.js":11}],23:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {

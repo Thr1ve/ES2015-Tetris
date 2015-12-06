@@ -1,8 +1,7 @@
-// TODO: Rename this "Shape controller" ?
 import randomShape from '../library/randomShape.js';
 import SETTINGS from '../settings.js';
 
-export default function activeShape(state, callbacks) {
+export default function shapeController(state, callbacks) {
   function freeze() {
     newActiveShape();
   }

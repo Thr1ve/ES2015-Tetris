@@ -1,9 +1,10 @@
 import background from './background.js';
-import activeShape from './activeShape.js';
+import shapeController from './shapeController.js';
 import timer from './timer.js';
 import rowChecker from './rowChecker.js';
 import score from './score.js';
 import difficulty from './difficulty.js';
+import end from './end.js';
 
 export default function(setActiveShapeCallback) {
   let state = {
@@ -22,9 +23,10 @@ export default function(setActiveShapeCallback) {
       },
     },
     timer(state, callbacks),
-    activeShape(state, callbacks),
+    shapeController(state, callbacks),
     rowChecker(state, callbacks),
     score(state, callbacks),
-    difficulty(state, callbacks)
+    difficulty(state, callbacks),
+    end(state, callbacks)
   );
 }
